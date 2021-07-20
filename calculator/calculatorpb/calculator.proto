@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package calculator;
-option go_package="calculatorpb";
+option go_package="./calculatorpb";
 
 message Values {
   int32 first_number = 1;
@@ -16,7 +16,18 @@ message CalculatorResponse {
   int32 result = 1;
 }
 
+message PrimeDecompositionRequest {
+  int32 number = 1;
+}
+
+message PrimeDecompositionReponse {
+  int32 result = 1;
+}
+
 service SumService {
   //Unary
   rpc Sum (CalculatorRequest) returns (CalculatorResponse) {};
+
+  //Server streaming
+  rpc PrimeDecomposition(PrimeDecompositionRequest) returns (stream PrimeDecompositionReponse) {};
 }

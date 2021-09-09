@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
 
@@ -43,6 +44,57 @@ func (*server) PrimeDecomposition(req *calculatorpb.PrimeDecompositionRequest, s
 	}
 
 	return nil
+}
+
+func (s *server) Average(stream calculatorpb.SumService_AverageServer) error {
+	fmt.Printf("Average function was invocked with \n")
+
+	var sum int32
+	var qtd float32
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			// we have finished reading the client stream
+			average := float32(sum) / qtd
+			return stream.SendAndClose(&calculatorpb.AverageResponse{
+				Average: float64(average),
+			})
+		}
+		if err != nil {
+			log.Fatalf("Error while reading client stream %v", err)
+		}
+
+		sum += req.GetValue()
+		qtd += 1
+	}
+}
+
+func (s *server) FindMaximum(stream calculatorpb.SumService_FindMaximumServer) error {
+	fmt.Printf("Find Maximum function was invocked \n")
+
+	maximum := 0
+
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			log.Fatalf("Error while reading client stream: %v", err)
+			return err
+		}
+		if req.Number > int32(maximum) {
+			maximum = int(req.Number)
+			if err := stream.Send(&calculatorpb.FindMaximumResponse{
+				Maximum: int32(maximum),
+			}); err != nil {
+				log.Fatalf("Error while sending data to client: %v", err)
+				return err
+			}
+		}
+
+	}
+
 }
 
 func main() {

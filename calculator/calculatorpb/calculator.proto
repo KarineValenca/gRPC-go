@@ -24,10 +24,32 @@ message PrimeDecompositionReponse {
   int32 result = 1;
 }
 
+message AverageRequest {
+  int32 value = 1;
+}
+
+message AverageResponse {
+  double average = 2;
+}
+
+message FindMaximumRequest {
+  int32 number = 1;
+}
+
+message FindMaximumResponse {
+  int32 maximum = 2;
+}
+
 service SumService {
   //Unary
   rpc Sum (CalculatorRequest) returns (CalculatorResponse) {};
 
   //Server streaming
   rpc PrimeDecomposition(PrimeDecompositionRequest) returns (stream PrimeDecompositionReponse) {};
+
+  //Client streaming
+  rpc Average(stream AverageRequest) returns (AverageResponse){};
+
+  //BiDi streaming
+  rpc FindMaximum(stream FindMaximumRequest) returns (stream FindMaximumResponse){}
 }
